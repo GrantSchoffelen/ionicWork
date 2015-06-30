@@ -1,18 +1,13 @@
 angular.module('starter.controllers', ['config', 'ipCookie', 'starter.services'])
 
-.controller('DashCtrl', function($scope, ipCookie, $rootScope, User, Treatment, Survey) {
-  console.log(ipCookie("token"))
-$scope.token = ipCookie("token")
-    if ($scope.token) {
-      $rootScope.currentUserSignedIn = true
-    }
-    if (!$scope.token) {
-      $location.path('/login')
-    }
-
-
+.controller('DashCtrl', function($scope, ipCookie, $rootScope, User, Treatment, Survey,  $stateParams) {
+  
+  
+$scope.token = window.localStorage['token'] 
+// $scope.token = ipCookie("token")
 
      $scope.postSymptomSurveyReply = function(survey){
+      $scope.hit = "hit"
       var promise; 
       survey.questions.forEach(function(question){
           if(question.response >0){
@@ -143,8 +138,9 @@ $scope.token = ipCookie("token")
       $http
         .post(ENV.apiUrl + '/auth/login', user)
         .success(function(data, status, header, config) {
-          ipCookie("token", data.data.token);
-          $http.defaults.headers.common.Authorization = 'Bearer ' + ipCookie("token")
+          
+          window.localStorage['token'] = data.data.token;
+          $http.defaults.headers.common.Authorization = 'Bearer ' + window.localStorage['token'] 
           $state.go('tab.dash')
 
         })

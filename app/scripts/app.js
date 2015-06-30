@@ -8,7 +8,7 @@
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngMaterial', 'ipCookie'])
 
 .run(function($ionicPlatform, $http, ipCookie) {
-  $http.defaults.headers.common.Authorization = 'Bearer ' + ipCookie("token")
+  $http.defaults.headers.common.Authorization = 'Bearer ' + window.localStorage['token'] 
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
