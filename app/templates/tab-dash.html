@@ -1,0 +1,45 @@
+<ion-view view-title="Dashboard">
+  <ion-content class="padding">
+   
+  <div>
+<h2>Adverse Event Reporting Tool</h2>
+<h4 style= "color: #ABABAB">Let us know how you are currently feeling.</h4>
+</div>
+
+<div 
+  ng-class-odd="'odd'" ng-class-even="'even'" ng-repeat='question in symptomSurvey.questions' style= "vertical-align: middle; padding-bottom:15px; padding-top:15px;" ng-if="question.questionText !== 'Are you experiencing any other symptoms?'">
+  
+
+  <div   style=" word-wrap: break-word;"ng-if="question.isActive === true">
+    <span style= "font-size: 20px; font-weight: bold;">{{ question.questionText }}</span>
+
+  </div>
+
+  <div class = "checkbox-container" >
+    <md-checkbox class="checkbox checkbox1 " ng-model="question.response" aria-label="Checkbox 1" ng-true-value= 1
+    ng-false-value= 0>
+    <span style="font-size: 12px; font-weight:bold; padding-left: 20px;">Mild</span>
+    </md-checkbox>
+    <md-checkbox class="checkbox checkbox2" ng-model="question.response" aria-label="Checkbox 2" ng-true-value= 2
+    ng-false-value= 0>
+    <span style="font-size: 12px; font-weight:bold; padding-left: 20px;">Moderate</span>
+    </md-checkbox>
+    <md-checkbox class="checkbox checkbox3 " ng-model="question.response" aria-label="Checkbox 3" ng-true-value= 3
+    ng-false-value= 0>
+    <span style="font-size: 12px; font-weight:bold; padding-left: 20px;">Severe</span>
+    </md-checkbox>
+  </div>
+</div>
+
+<br>
+<div ng-repeat='question in symptomSurvey.questions' ng-if="question.questionText === 'Are you experiencing any other symptoms?'">
+<md-input-container flex>
+<label>Other Symptoms?</label>
+<textarea ng-model="question.response" columns="1" md-maxlength="150"></textarea>
+</md-input-container>
+</div>
+<center>
+<md-button class="md-raised md-primary" style="color: white; font-size:30px;" ng-click="postSymptomSurveyReply(symptomSurvey)">Report</md-button>
+</center>
+  </ion-content>
+</ion-view>

@@ -1,0 +1,43 @@
+/* Empty. Add your own CSS if you like */
+
+.checkbox1 .md-icon {
+  /*background-color: #DDF8EC;*/
+  -ms-transform: scale(2,2); /* IE 9 */
+    -webkit-transform: scale(2,2); /* Safari */
+    transform: scale(2,2);
+}
+
+.checkbox2 .md-icon {
+  /*background-color: #AADFCE;*/
+  -ms-transform: scale(2,2); /* IE 9 */
+    -webkit-transform: scale(2,2); /* Safari */
+    transform: scale(2,2);
+}
+
+.checkbox3 .md-icon {
+  /*background-color: #86DDE2;*/
+  -ms-transform: scale(2,2); /* IE 9 */
+    -webkit-transform: scale(2,2); /* Safari */
+    transform: scale(2,2);
+}
+
+.checkbox-container {
+  text-align: center;
+ 
+}
+
+.md-checkbox {
+  margin: 0px 0px 0px 0px;
+}
+
+
+
+
+.even {
+  background: white;
+
+}
+
+.odd {
+  background: #F5F5F5;
+}
