@@ -1,13 +1,14 @@
-angular.module('starter.controllers', ['config', 'ipCookie', 'starter.services'])
+angular.module('starter.controllers', ['config', 'starter.services'])
 
-.controller('DashCtrl', function($scope, ipCookie, $rootScope, User, Treatment, Survey,  $stateParams) {
-  
-  
-$scope.token = window.localStorage['token'] 
-// $scope.token = ipCookie("token")
+.controller('DashCtrl', function($scope, $rootScope, User, Treatment, Survey,  $stateParams, $state) {
+
+
+  if(typeof window.localStorage['token'] === 'undefined'){
+    $state.go('login')
+  }
+
 
      $scope.postSymptomSurveyReply = function(survey){
-      $scope.hit = "hit"
       var promise; 
       survey.questions.forEach(function(question){
           if(question.response >0){
@@ -107,54 +108,54 @@ $scope.token = window.localStorage['token']
         }); 
       });
             })
+
     }); 
 
 })
 
-.controller('ChatsCtrl', function($scope, Chats) {
-  // With the new view caching in Ionic, Controllers are only called
-  // when they are recreated or on app start, instead of every page change.
-  // To listen for when this page is active (for example, to refresh data),
-  // listen for the $ionicView.enter event:
-  //
-  //$scope.$on('$ionicView.enter', function(e) {
-  //});
+// .controller('ChatsCtrl', function($scope, Chats) {
+//   // With the new view caching in Ionic, Controllers are only called
+//   // when they are recreated or on app start, instead of every page change.
+//   // To listen for when this page is active (for example, to refresh data),
+//   // listen for the $ionicView.enter event:
+//   //
+//   //$scope.$on('$ionicView.enter', function(e) {
+//   //});
   
-  $scope.chats = Chats.all();
-  $scope.remove = function(chat) {
-    Chats.remove(chat);
-  }
-})
+//   $scope.chats = Chats.all();
+//   $scope.remove = function(chat) {
+//     Chats.remove(chat);
+//   }
+// })
 
-.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-  $scope.chat = Chats.get($stateParams.chatId);
-})
+// .controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
+//   $scope.chat = Chats.get($stateParams.chatId);
+// })
 
-.controller('LoginCtrl', function($scope, $http, $location, $rootScope, ENV, ipCookie, $state) {
- 
- $scope.user = {};
-      $scope.login = function(user, success, error) {
+.controller('LoginCtrl', function($scope, $http, $location, $rootScope, ENV, $state) {
 
-      $http
-        .post(ENV.apiUrl + '/auth/login', user)
-        .success(function(data, status, header, config) {
-          
-          window.localStorage['token'] = data.data.token;
-          $http.defaults.headers.common.Authorization = 'Bearer ' + window.localStorage['token'] 
-          $state.go('tab.dash')
-
-        })
-        .error(function(data, status, header, config) {
-          
-            $scope.loginError = data
-            console.log($scope.loginError)
-          
-        });
+    localStorage.clear();
+    localStorage.removeItem('token');
+    $scope.user = {};
+    $scope.login = function(user, success, error) {
+      $scope.loading = true; 
+        $http
+            .post(ENV.apiUrl + '/auth/login', user)
+            .success(function(data, status, header, config) {
+                localStorage.setItem('token', data.data.token);                   
+                $http.defaults.headers.common.Authorization = 'Bearer ' + localStorage['token'] 
+                $state.go('tab.dash')
+                $scope.loading = false; 
+            })
+            .error(function(data, status, header, config) {
+                $scope.loginError = data;
+                $scope.loading = false;
+            });
     }
 })
 
-.controller('AccountCtrl', function($scope) {
-  $scope.settings = {
-    enableFriends: true
-  };
-});
+// .controller('AccountCtrl', function($scope) {
+//   $scope.settings = {
+//     enableFriends: true
+//   };
+// });
