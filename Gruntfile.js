@@ -42,7 +42,8 @@ module.exports = function (grunt) {
       development: {
         constants: {
           ENV: {
-            apiUrl: 'https://lapidus.s.workup.is/apipool/api', 
+            // apiUrl: 'https://lapidus.s.workup.is/apipool/api', 
+            apiUrl: 'http://localhost:8080/api', 
     appName: "Status", 
     enableLiveNotifications: true
           }

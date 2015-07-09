@@ -8,64 +8,61 @@ angular.module('starter.controllers', ['config', 'starter.services'])
   }
 
 
-     $scope.postSymptomSurveyReply = function(survey){
-      var promise; 
-      survey.questions.forEach(function(question){
-          if(question.response >0){
-              var reply = {
+       $scope.postSymptomSurveyReply = function(survey){
+        var promise, 
+            surveyReplyQuestions = [], 
+            surveyReply = {
+                survey: survey._id,
+                question: survey.questions[0]._id,
+                session: "Symptom",
+                patient: $scope.userId,
+                submitted: new Date(),
+                submittedFor: new Date(),
+                value: {}, 
+                score:  0
+            }; 
+        survey.questions.forEach(function(question){
+            
+            if(question.response >0){
+              var questionReply = {
                   survey: survey._id,
                     question: question._id,
-                    session: "Symptom",
+                    type: "symptom",
                     patient: $scope.userId,
                     submitted: new Date(),
-                    submittedFor: new Date(),
-                    value: {reason: question.questionText, 
-                                response: question.response, 
-                                type: 'symptom', 
-                                sideEffect: question.sideEffect, 
-                                bundleId: question.bundleId
-                            },
-                                 
-                    score:  question.response
+                    reason: question.questionText, 
+                    score:  question.response, 
+                        sideEffect: question.sideEffect, 
+                        bundleId: question.bundleId 
                     }
-            if(!promise){
-              promise = Survey.postSymptomSurvey(reply); 
-            
-                }else{
-              promise = promise.then(function(){
-                return Survey.postSymptomSurvey(reply); 
-              }); 
-             }
-            question.response = 0; 
+                    surveyReplyQuestions.push(questionReply)
+                    question.response = 0; 
         }
 
-                    if(isNaN(question.response)){
-                var replyFreeQuestion = {
+            if(isNaN(question.response)){
+                var questionReply = {
                         survey: survey._id,
                         question: question._id,
-                        session: "Symptom",
+                        type: "symptom",
                         patient: $scope.userId,
                         submitted: new Date(),
-                        submittedFor: new Date(),
-                        value: {reason: question.response, 
-                                response: null, 
-                                type: 'symptom', 
-                                sideEffect: [{name: 'Unknown'}], 
-                                bundleId: question.bundleId
-                            },
-                        score:  null
+                        reason: question.response, 
+                        score: null, 
+                        sideEffect: [{name: 'Unknown'}], 
+                        bundleId: question.bundleId
                     }; 
-                if(!promise){
-                    promise = Survey.postSymptomSurvey(replyFreeQuestion); 
+
+                    surveyReplyQuestions.push(questionReply)
                 
-                }else{
-                    promise = promise.then(function(){
-                        return Survey.postSymptomSurvey(replyFreeQuestion); 
-                    }); 
-                 }
                 question.response = ""; 
             }
       }); 
+        surveyReply.value = surveyReplyQuestions
+  
+    Survey.postSurveyReply(surveyReply).then(function(response){
+        
+    })
+
       // $scope.showAdvanced(); 
     }; 
 
@@ -77,11 +74,11 @@ angular.module('starter.controllers', ['config', 'starter.services'])
 
     User.getCurrentUser().then(function(user) {
       $scope.userProfile = user.data.data; 
-      console.log($scope.userProfile)
+     
       $scope.userId = user.data.data.patientProfiles[0]; 
             Treatment.getTreatmentBundles($scope.userId).then(function(treatments){
                 $scope.treatments = treatments.data.data
-                console.log($scope.treatments)
+              
             
       Survey.getSymptomSurvey($scope.userId).then(function(result){
         $scope.symptomSurvey = result.data.data[0];
