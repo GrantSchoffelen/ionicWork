@@ -2,23 +2,23 @@
 
 .checkbox1 .md-icon {
   /*background-color: #DDF8EC;*/
-  -ms-transform: scale(2,2); /* IE 9 */
-    -webkit-transform: scale(2,2); /* Safari */
-    transform: scale(2,2);
+  -ms-transform: scale(1.75,1.75); /* IE 9 */
+    -webkit-transform: scale(1.75,1.75); /* Safari */
+    transform: scale(1.75,1.75);
 }
 
 .checkbox2 .md-icon {
   /*background-color: #AADFCE;*/
-  -ms-transform: scale(2,2); /* IE 9 */
-    -webkit-transform: scale(2,2); /* Safari */
-    transform: scale(2,2);
+  -ms-transform: scale(1.75,1.75); /* IE 9 */
+    -webkit-transform: scale(1.75,1.75); /* Safari */
+    transform: scale(1.75,1.75);
 }
 
 .checkbox3 .md-icon {
-  /*background-color: #86DDE2;*/
-  -ms-transform: scale(2,2); /* IE 9 */
-    -webkit-transform: scale(2,2); /* Safari */
-    transform: scale(2,2);
+  /*background-color: #86DDE1.75;*/
+  -ms-transform: scale(1.75,1.75); /* IE 9 */
+    -webkit-transform: scale(1.75,1.75); /* Safari */
+    transform: scale(1.75,1.75);
 }
 
 .checkbox-container {
