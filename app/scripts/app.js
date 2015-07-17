@@ -5,22 +5,17 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngMaterial'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngMaterial', 'ngIdle'])
 
-.run(function($ionicPlatform, $http) {
-  
-
-  localStorage.clear()
-  // if(window.localStorage && !window.localStorage.getItem('firstRunFinished'))
- //  if(typeof window.localStorage['token'] !== 'undefined'){
- //  console.log('hit')
- //  delete window.localStorage['token'];
- //  console.log(window.localStorage['token'])
- // }
- // else{
- //  console.log('token undefuned')
- // }
-  // $http.defaults.headers.common.Authorization = 'Bearer ' + window.localStorage['token'] 
+.run(function($ionicPlatform, $http, Idle, $rootScope, $state) {
+    sessionStorage.clear()
+    Idle.watch();
+    $rootScope.$on('IdleTimeout', function(){
+        console.log('logged out')
+        sessionStorage.clear();
+        $state.go('login')
+        $rootScope.logOutMessage = "You've been logged out due to 15 minutes of inactivity"
+    })
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -34,7 +29,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   });
 })
 
-.config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
+.config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider, KeepaliveProvider, IdleProvider) {
+  IdleProvider.idle(900);
+  IdleProvider.timeout(1);
+  KeepaliveProvider.interval(1);
   $ionicConfigProvider.views.maxCache(0);
 
   $ionicConfigProvider.tabs.position('bottom'); 

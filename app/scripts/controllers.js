@@ -2,8 +2,8 @@ angular.module('starter.controllers', ['config', 'starter.services'])
 
 .controller('DashCtrl', function($scope, $rootScope, User, Treatment, Survey,  $stateParams, $state) {
 
-
-  if(typeof window.localStorage['token'] === 'undefined'){
+console.log(sessionStorage)
+  if(typeof sessionStorage['token'] === 'undefined'){
     $state.go('login')
   }
 
@@ -129,18 +129,20 @@ angular.module('starter.controllers', ['config', 'starter.services'])
 //   $scope.chat = Chats.get($stateParams.chatId);
 // })
 
-.controller('LoginCtrl', function($scope, $http, $location, $rootScope, ENV, $state) {
+.controller('LoginCtrl', function($scope, $http, $location, $rootScope, ENV, $state, Idle) {
 
-    localStorage.clear();
-    localStorage.removeItem('token');
+
+    sessionStorage.clear();
+    sessionStorage.removeItem('token');
     $scope.user = {};
     $scope.login = function(user, success, error) {
       $scope.loading = true; 
         $http
             .post(ENV.apiUrl + '/auth/login', user)
             .success(function(data, status, header, config) {
-                localStorage.setItem('token', data.data.token);                   
-                $http.defaults.headers.common.Authorization = 'Bearer ' + localStorage['token'] 
+                Idle.watch();
+                sessionStorage['token'] = data.data.token;                   
+                $http.defaults.headers.common.Authorization = 'Bearer ' + sessionStorage['token'] 
                 $state.go('tab.dash')
                 $scope.loading = false; 
             })
