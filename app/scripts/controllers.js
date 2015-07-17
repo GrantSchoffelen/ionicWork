@@ -2,7 +2,6 @@ angular.module('starter.controllers', ['config', 'starter.services'])
 
 .controller('DashCtrl', function($scope, $rootScope, User, Treatment, Survey,  $stateParams, $state) {
 
-console.log(sessionStorage)
   if(typeof sessionStorage['token'] === 'undefined'){
     $state.go('login')
   }
