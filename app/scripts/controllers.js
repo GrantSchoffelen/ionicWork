@@ -128,19 +128,22 @@ angular.module('starter.controllers', ['config', 'starter.services'])
 //   $scope.chat = Chats.get($stateParams.chatId);
 // })
 
-.controller('LoginCtrl', function($scope, $http, $location, $rootScope, ENV, $state, Idle) {
+.controller('LoginCtrl', function($scope, $http, $location, $rootScope, ENV, $state, Idle, $cookies) {
 
 
     sessionStorage.clear();
     sessionStorage.removeItem('token');
-    $scope.user = {};
+    $scope.user =  {};
+
+    $scope.user.email = $cookies.mobileEmail 
     $scope.login = function(user, success, error) {
       $scope.loading = true; 
         $http
             .post(ENV.apiUrl + '/auth/login', user)
             .success(function(data, status, header, config) {
                 Idle.watch();
-                sessionStorage['token'] = data.data.token;                   
+                sessionStorage['token'] = data.data.token;  
+                $cookies.mobileEmail = $scope.user.email                
                 $http.defaults.headers.common.Authorization = 'Bearer ' + sessionStorage['token'] 
                 $state.go('tab.dash')
                 $scope.loading = false; 

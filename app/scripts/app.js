@@ -5,9 +5,9 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngMaterial', 'ngIdle'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngMaterial', 'ngIdle', 'ngCookies'])
 
-.run(function($ionicPlatform, $http, Idle, $rootScope, $state) {
+.run(function($ionicPlatform, $http, Idle, $rootScope, $state, $cookies) {
     sessionStorage.clear()
     Idle.watch();
     $rootScope.$on('IdleTimeout', function(){
@@ -31,8 +31,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 })
 
 .config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider, KeepaliveProvider, IdleProvider) {
-  IdleProvider.idle(900);
-  IdleProvider.timeout(1);
+  IdleProvider.idle(3);
+  IdleProvider.timeout(0.0000003);
   KeepaliveProvider.interval(1);
   $ionicConfigProvider.views.maxCache(0);
 
