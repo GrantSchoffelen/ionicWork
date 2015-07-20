@@ -12,6 +12,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     Idle.watch();
     $rootScope.$on('IdleTimeout', function(){
         console.log('logged out')
+        sessionStorage.removeItem('token')
         sessionStorage.clear();
         $state.go('login')
         $rootScope.logOutMessage = "You've been logged out due to 15 minutes of inactivity"
