@@ -31,7 +31,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 })
 
 .config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider, KeepaliveProvider, IdleProvider) {
-  IdleProvider.idle(3);
+  IdleProvider.idle(900);
   IdleProvider.timeout(0.0000003);
   KeepaliveProvider.interval(1);
   $ionicConfigProvider.views.maxCache(0);
