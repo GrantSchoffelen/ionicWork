@@ -58,6 +58,52 @@ angular.module('starter.services', [])
 
     };
   })
+    .factory('Cycle', function($http, ENV, $q) {
+
+
+     return {
+      getCurrentStepsForBundle: function(patientId, startDate, endDate, bundleId, bundleName) {
+        var deferred = $q.defer()
+        $http.get(ENV.apiUrl + "/cycle?bundleId=" + bundleId + "&date%5B%5D=" + startDate + "&date%5B%5D=" + endDate + "&patient=" + patientId + "&state%5B%5D=open&state%5B%5D=pending&state%5B%5D=cantcomplete&state%5B%5D=complete")
+          .success(function(data) {
+            deferred.resolve({
+              title: bundleName,
+              steps: data.data,
+              id: bundleId,
+              all: data
+            });
+          }).error(function(msg, code) {
+            deferred.reject(msg);
+            $log.error(msg, code)
+          });
+        return deferred.promise;
+      }
+    };
+  })
+    .factory('Patient', function($http, ENV) {
+
+
+    return {
+       getCurrentPatientInformation: function (patientId) {
+        return $http.get(ENV.apiUrl + "/patient/" + patientId)
+      }
+
+    };
+  })
+    .factory('Adherence', function($http, ENV, $q) {
+
+
+    return {
+    getAdherenceOneDay: function(patientId, fromDay, untilDay) {
+        var deferred = $q.defer();
+        return $http.get(ENV.apiUrl + "/bundle/adherence?patient=" + patientId + '&from=' + fromDay + '&until=' + untilDay).then(function(surveys){
+          deferred.resolve(surveys)
+          return deferred.promise
+        })
+      }
+
+    };
+  })
    .factory('Treatment', function ($http, ENV) {
   
 

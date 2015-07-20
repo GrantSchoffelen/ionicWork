@@ -1,0 +1,621 @@
+angular.module('Today.controller', ['config', 'starter.services'])
+
+.controller('TodayCtrl', function($scope, ENV, $location, $http, $rootScope, User, Adherence, Treatment, Patient, Cycle, $timeout) {
+
+
+    $scope.date = new Date(); 
+    
+    $scope.cancel = function() {
+      $mdDialog.cancel();
+    };
+
+    $scope.noDosageFreeChoiceQuestionResponse =""; 
+
+    $scope.postAdherenceNoReason = function(reason){
+      Survey.postSurveyReply(reason).then(function(response){    
+        $scope.cancel()
+      }); 
+    }
+
+
+    $scope.loadingDayCalendar = true;
+    $scope.dailyCalLoading = "dailyCalLoading"
+
+
+
+    function getCurrentEvent(array){
+      var temp; 
+      $scope.currentDrugEvents = []
+      var sorted  = array.sort(function(a,b){
+        return new Date(a.time) - new Date(b.time)
+      })
+      
+
+      for(var i=0; i< sorted.length; i++){
+        if(date < array[i].time){
+          
+          temp = array[i]
+          break
+        }
+      }
+
+        for(var j=0; j< array.length; j++){
+          if(!temp){
+            return
+          }
+
+       
+          if(temp.time.getTime() === array[j].time.getTime()){
+            
+            $scope.currentDrugEvents.push(array[j])
+          }
+        }
+    }
+
+    
+
+    var loadingFunction = function() {
+      $scope.dailyCalLoading = ""
+      $scope.loadingDayCalendar = false;
+    }
+
+
+
+    $scope.nextDay = function() {
+      $scope.loadingDayCalendar = true;
+      $scope.dailyCalLoading = "dailyCalLoading"
+      $scope.myCalendar.fullCalendar('next')
+      var nextDay = new Date($scope.myCalendar.fullCalendar('getView').visStart)
+
+      var endY = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1).getFullYear()
+      var endM = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1).getMonth()
+      var endD = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1).getDate()
+      
+      makeAdherenceCall($rootScope.userID, nextDay)
+      Treatment.getTreatmentScheduleForOneDay($scope.userProfile.patientProfiles[0], endY, endM, endD).then(function(treat) {
+        for (var x = 0; x < $scope.eventSources.length; x++) {
+          $scope.eventSources[x].events = [];
+        }
+        $scope.createDrugEventsforWeek(treat.data.data, nextDay)
+        $scope.createEatAndSleepCalendarEvents($scope.patientSchedule, nextDay)
+        $scope.getChecklists(treat.data.data, nextDay)
+      })
+
+    }
+
+    $scope.prevDay = function() {
+      $scope.loadingDayCalendar = true;
+      $scope.dailyCalLoading = "dailyCalLoading"
+      $scope.myCalendar.fullCalendar('prev')
+      var endY = $scope.myCalendar.fullCalendar('getView').visEnd.getFullYear()
+      var endM = $scope.myCalendar.fullCalendar('getView').visEnd.getMonth()
+      var endD = ($scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1)
+      var prevDay = new Date(endY, endM, endD)
+  makeAdherenceCall($rootScope.userID, prevDay)
+
+
+      Treatment.getTreatmentScheduleForOneDay($scope.userProfile.patientProfiles[0], endY, endM, endD).then(function(treat) {
+        for (var x = 0; x < $scope.eventSources.length; x++) {
+          $scope.eventSources[x].events = [];
+        }
+        $scope.createDrugEventsforWeek(treat.data.data, prevDay)
+        $scope.createEatAndSleepCalendarEvents($scope.patientSchedule, prevDay)
+        $scope.getChecklists(treat.data.data, prevDay)
+      })
+    }
+
+
+
+    Date.prototype.addHours = function(h) {
+      this.setHours(this.getHours() + h);
+      return this;
+    }
+
+    Date.prototype.addMins = function(m) {
+      this.setMinutes(this.getMinutes() + m);
+      return this;
+    }
+
+
+
+    var date = new Date();
+    var d = date.getDate();
+    var m = date.getMonth();
+    var y = date.getFullYear();
+
+
+
+    $scope.createEatAndSleepCalendarEvents = function(patientSchedule, dateForEvent) {
+      var day = dateForEvent.getDate();
+      var month = dateForEvent.getMonth();
+      var year = dateForEvent.getFullYear();
+
+      for (var i = 0; i < patientSchedule.length; i++) {
+        var time = patientSchedule[i].time.split(":")
+        var eventTitle;
+        if (patientSchedule[i].label) {
+          var eventTitle = patientSchedule[i].label.replace(/^[a-z]/, function(m) {
+            return m.toUpperCase()
+          })
+          $scope.eatEventsFortoday = {
+            title: eventTitle,
+            start: new Date(year, month, day, time[0], time[1]),
+            // end: new Date(y, m, d, Number(time[0]) + 1, time[1]),
+            allDay: false,
+            // overlap: false
+            timeFormat: 'H:mm-{H:mm}',
+            description: ""
+          }
+          if ($scope.eventSources[1].events.indexOf($scope.eatEventsFortoday) === -1) {
+            $scope.eventSources[1].events.push($scope.eatEventsFortoday)
+          }
+
+        } else {
+          var eventTitle = patientSchedule[i].item.replace(/^[a-z]/, function(m) {
+            return m.toUpperCase()
+          })
+          $scope.sleepEventsFortoday = {
+            title: eventTitle,
+            start: new Date(year, month, day, time[0], time[1]),
+            // end: new Date(y, m, d, Number(time[0]) + 1, time[1]),
+            allDay: false,
+            description: ""
+              // overlap: false
+          }
+          if ($scope.eventSources[1].events.indexOf($scope.sleepEventsFortoday) === -1) {
+            $scope.eventSources[1].events.push($scope.sleepEventsFortoday)
+          }
+
+
+        }
+        // for (var j = 1; j < 7; j++) {
+
+
+        //   $scope.eatAndSleepEventsForweek = {
+        //     title: eventTitle,
+        //     start: new Date(y, m, d + j, time[0], time[1]),
+        //     end: new Date(y, m, d + j, Number(time[0]) + 1, time[1]),
+        //     allDay: false,
+        //     description: ""
+        //       // overlap: false 
+        //   }
+
+        //   $scope.eventSources[0].events.push($scope.eatAndSleepEventsForweek)
+        // }
+
+        // $scope.eventSources[0].events.push($scope.eatAndSleepEventsFortoday)
+
+      };
+    }
+
+
+
+    $scope.TreatmentsForToday = [];
+    $scope.times = [];
+
+
+
+    //////////////////////////////////////Begin Getting Drug Events//////////////////////////////////////////////////////////
+
+    $scope.createDrugEventsforWeek = function(treatmentBundles, dateForEvent) {
+
+
+
+      for (var i = 0; i < treatmentBundles.length; i++) {
+        var currentSurvey,
+          surveyId;
+        if (treatmentBundles[i].status === "discontinued" || treatmentBundles[i].status === "pending") {
+          continue;
+        }
+
+        $scope.adherenceSurveys.forEach(function(el) {
+
+
+          if (el.targetId === "adherence__" + treatmentBundles[i]._id) {
+            currentSurvey = el
+            surveyId = el._id
+
+
+          }
+        })
+
+
+
+        for (var j = 0; j < treatmentBundles[i].drug.usages.length; j++) {
+          var instructions = [];
+          var timeConstraints = [];
+          for (var p = 0; p < treatmentBundles[i].drug.instructions.length; p++) {
+            instructions.push(treatmentBundles[i].drug.instructions[p].additionalInfo || treatmentBundles[i].drug.instructions[p].type);
+            if (treatmentBundles[i].drug.instructions[p].timeConstraints !== undefined) {
+              for (var c = 0; c < treatmentBundles[i].drug.instructions[p].timeConstraints.deltas.length; c++) {
+                if (treatmentBundles[i].drug.instructions[p].timeConstraints.deltas[c].value !== undefined) {
+                  if (treatmentBundles[i].drug.instructions[p].timeConstraints.deltas[c].occurence === 'before') {
+                    var timeContaraintObjects = {
+                      value: treatmentBundles[i].drug.instructions[p].timeConstraints.deltas[c].value / -60,
+                      occurence: treatmentBundles[i].drug.instructions[p].timeConstraints.deltas[c].occurence
+                    }
+                  } else {
+                    var timeContaraintObjects = {
+                      value: treatmentBundles[i].drug.instructions[p].timeConstraints.deltas[c].value / 60,
+                      occurence: treatmentBundles[i].drug.instructions[p].timeConstraints.deltas[c].occurence
+                    }
+
+                  }
+                  timeConstraints.push(timeContaraintObjects)
+                }
+              }
+            }
+          }
+          for (var g = 0; g < treatmentBundles[i].drug.usages[j].tick.length; g++) {
+            if (!treatmentBundles[i].drug.usages[j].tick[g].scheduleDates) {
+              continue;
+            }
+            for (var h = 0; h < treatmentBundles[i].drug.usages[j].tick[g].scheduleDates.length; h++) {
+              if (treatmentBundles[i].status === "onhold") {
+                if (new Date(new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h])) > new Date(treatmentBundles[i].heldAt)) {
+                  continue;
+                }
+
+              }
+              if (new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]).toDateString() === dateForEvent.toDateString()) {
+
+                var surveyQuestions = []
+                
+
+          if(currentSurvey && currentSurvey !== undefined){
+
+
+                for(var  z = 0; z < currentSurvey.questions.length; z++){
+                  if (currentSurvey.questions[z].scheduleDates[0] !== undefined && currentSurvey.questions[z].scheduleDates[0].date === treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]) {
+                    surveyQuestions.push(currentSurvey.questions[z])
+
+                  }
+
+              
+
+                }
+                 }
+
+                 if(surveyQuestions.length > 0){
+
+
+                for(var t=0; t<surveyQuestions.length; t++){
+
+        
+            if(surveyQuestions[t]._type === "DosageChoiceQuestion"){
+         var sorted = surveyQuestions[t].scheduleDates[0].replies.sort(function(a,b){
+
+          return new Date(a.submitted) - new Date(b.submitted)
+
+         })
+         var mostRecentResponse = sorted.pop()
+         
+       }
+     }
+     }
+
+
+                var drugTime = {
+                  name: treatmentBundles[i].name,
+                  time: new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]),
+                  colorClass: "colorclass" + i,
+                  abbreviation: treatmentBundles[i].name.substring(0, 2),
+                  surveyQuestions: surveyQuestions,
+                  surveyId: surveyId, 
+                  mostRecentAnswer: mostRecentResponse
+
+                }
+
+                
+
+                $scope.TreatmentsForToday.push(treatmentBundles[i])
+                $scope.times.push(drugTime)
+                $scope.drugsToday = {
+                  title: treatmentBundles[i].name,
+                  start: new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]),
+                  // end: new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]).addHours(1),
+                  allDay: false,
+                  colorClass: "colorclass" + i,
+                  description: "Take " + treatmentBundles[i].drug.usages[j].tick[g].strength + treatmentBundles[i].drug.measure + " " + instructions[0],
+                  surveyQuestions: surveyQuestions,
+                  surveyId: surveyId, 
+                  mostRecentAnswer: mostRecentResponse
+
+                }
+                for (var t = 0; t < timeConstraints.length; t++) {
+                  if (timeConstraints[t].occurence === 'before') {
+                    $scope.timeConstraintsBefore = {
+                      title: "Go " + instructions[0] + "  from " + new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]).addHours(timeConstraints[t].value).toLocaleTimeString(navigator.language, {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) + " to " + new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]).toLocaleTimeString(navigator.language, {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) + " " + timeConstraints[t].occurence + " taking " + treatmentBundles[i].name,
+                      start: new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]).addHours(timeConstraints[t].value),
+                      end: new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]),
+                      allDay: false,
+                      description: ""
+                    }
+                    $scope.eventSources[3].events.push($scope.timeConstraintsBefore)
+                  } else if (timeConstraints[t].occurence === 'after') {
+                    $scope.timeConstraintsAfter = {
+                      title: "Go " + instructions[0] + "  from " + new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]).toLocaleTimeString(navigator.language, {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) + " to " + new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]).addHours(timeConstraints[t].value).toLocaleTimeString(navigator.language, {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) + " " + timeConstraints[t].occurence + " taking " + treatmentBundles[i].name,
+                      start: new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]).addMins(1),
+                      end: new Date(treatmentBundles[i].drug.usages[j].tick[g].scheduleDates[h]).addHours(timeConstraints[t].value),
+                      allDay: false,
+                      description: ""
+                    }
+                    $scope.eventSources[3].events.push($scope.timeConstraintsAfter)
+                  }
+                }
+                $scope.eventSources[2].events.push($scope.drugsToday)
+              }
+            }
+          }
+        }
+      }
+      // $scope.currentEvents = [];
+      // for (var x = 0; x < $scope.eventSources.length; x++) {
+      //   for (var z = 0; z < $scope.eventSources[x].events.length; z++) {
+      //     if ((new Date($scope.eventSources[x].events[z].start).getTime() < new Date().getTime()) && (new Date().getTime() < new Date($scope.eventSources[x].events[z].end).getTime())) {
+      //       $scope.currentEvents.push($scope.eventSources[x].events[z])
+      //     }
+      //   }
+      // }
+      $timeout(loadingFunction, 1)
+
+getCurrentEvent($scope.times); 
+
+    }
+
+
+    $scope.getChecklists = function(TreatmentBundles, date) {
+      var startDate = moment(date).subtract(1, 'days').startOf("month").format()
+      var endDate = moment(date).endOf("month").format()
+
+      for (var i = 0; i < TreatmentBundles.length; i++) {
+        var bundleId = TreatmentBundles[i]._id;
+        var title = TreatmentBundles[i].name
+        Cycle.getCurrentStepsForBundle($rootScope.userID, startDate, endDate, bundleId, title).then(function(checkList) {
+
+          if (checkList.steps.length) {
+            checkList.steps = checkList.steps.filter(function(step) {
+
+              if (step.cycles.assigned) {
+                for (var j = 0; j < step.cycles.tasks.length; j++) {
+                  $scope.obj = {
+                    title: null,
+                    start: null,
+                    allDay: true,
+                    task: null,
+                    onCompleteList: null,
+                    notes: null,
+                    description: "+",
+                    id: j,
+                    colorClass: "taskClass"
+                  }
+
+                  $scope.obj.description = ""
+
+
+                  if (!step.cycles.tasks[j]) {
+                    continue;
+                  }
+
+
+                  
+                  if (!step.cycles.tasks[j].date || !step.cycles.tasks[j].date.length) {
+                    step.cycles.tasks[j].date = step.cycles.date[0]
+
+                  }
+                  
+                  if (step.cycles.tasks[j].status.name === "Complete") {
+
+                    $scope.obj.onCompleteList = true
+                  }
+                  if (step.cycles.tasks[j].assigned && step.cycles.tasks[j].assigned._id === $scope.userProfile._id) {
+                    $scope.obj.title = "Task Due: " + step.name + "-" + step.cycles.tasks[j].title
+                    $scope.obj.start = new Date(step.cycles.tasks[j].date)
+                    $scope.obj.task = step.cycles.tasks[j]
+
+
+
+                    $scope.eventSources[0].events.push($scope.obj)
+
+
+
+                  }
+                }
+
+                return true
+              } else {
+                return false
+              }
+
+            })
+
+
+          }
+        })
+      }
+
+    }
+
+
+    //     setTimeout(function () { 
+    //         $('.fc-button-next span').click(function(){
+
+    //         setTimeout(function () { 
+    //         var nextDay = new Date($scope.myCalendar.fullCalendar('getView').visStart) 
+    //        
+    //         var endY  = $scope.myCalendar.fullCalendar('getView').visEnd.getFullYear()
+    //         var endM = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() -1).getMonth()
+    //         var endD = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() -1).getDate()
+
+    //         Treatment.getTreatmentScheduleForOneDay($scope.userProfile.patientProfiles[0], endY, endM, endD).then(function(treat){
+    //           for(var x =0; x< $scope.eventSources.length; x++){
+    //             $scope.eventSources[x].events = []; 
+    //           }
+    //           $scope.createDrugEventsforWeek(treat.data.data, nextDay)  
+    //           $scope.createEatAndSleepCalendarEvents($scope.patientSchedule, nextDay)  
+    //         })
+
+
+
+    //         }, 300);
+    //        })
+    // $('.fc-button-prev span').click(function(){
+
+    //         setTimeout(function () { 
+    //         var endY  = $scope.myCalendar.fullCalendar('getView').visEnd.getFullYear()
+    //         var endM = $scope.myCalendar.fullCalendar('getView').visEnd.getMonth()
+    //         var endD = ($scope.myCalendar.fullCalendar('getView').visEnd.getDate() -1)
+    //         var prevDay = new Date(endY, endM, endD) 
+
+    //         Treatment.getTreatmentScheduleForOneDay($scope.userProfile.patientProfiles[0], endY, endM, endD).then(function(treat){
+    //           for(var x =0; x< $scope.eventSources.length; x++){
+    //             $scope.eventSources[x].events = []; 
+    //           }
+    //           $scope.createDrugEventsforWeek(treat.data.data, prevDay)  
+    //           $scope.createEatAndSleepCalendarEvents($scope.patientSchedule, prevDay)  
+    //         })
+
+
+
+    //         }, 300);
+    //        })
+
+
+    //       }, 100); 
+
+    ///////////////////////////// Get Adherence function/////////////////////////////////
+
+    var makeAdherenceCall = function(patientId, dateForEvent) {
+      var fromSurveyDate = moment(dateForEvent).format("YYYY-M-DD"),
+        untilSurveyDate = moment(dateForEvent).add(1, "days").format("YYYY-M-DD");
+      Adherence.getAdherenceOneDay($rootScope.userID, fromSurveyDate, untilSurveyDate).then(function(result) {
+        var surveys = result; 
+        $scope.adherenceSurveys = surveys.data.data
+      })
+    }
+
+
+    ////////////////////////End Of Getting Drugs //////////////////////////////////////////////
+
+    User.getCurrentUser().then(function(user) {
+
+      
+      $scope.userProfile = user.data.data
+      $rootScope.userID = user.data.data.patientProfiles[0]
+      makeAdherenceCall($rootScope.userID, date)
+      Treatment.getTreatmentScheduleForOneDay(user.data.data.patientProfiles[0], y, m, d).then(function(treatments) {
+        $scope.treatments = treatments.data.data
+        $scope.getChecklists($scope.treatments, date)
+
+        Patient.getCurrentPatientInformation(user.data.data.patientProfiles[0]).then(function(patient) {
+          $scope.patientSchedule = patient.data.data.schedule
+          $scope.createEatAndSleepCalendarEvents($scope.patientSchedule, date)
+          $scope.createDrugEventsforWeek($scope.treatments, date)
+        })
+      })
+    })
+
+
+    $scope.eventSources = [{
+        events: [],
+        color: "transparent", // an option!
+        textColor: 'black',
+        className: 'task' // an option!
+      },
+
+      {
+        events: [],
+        color: "transparent", // an option!
+        textColor: 'black', // an option!
+        className: 'dailySchduale',
+      },
+
+      {
+        events: [],
+        color: "transparent",
+        textColor: 'black',
+        className: 'drugs'
+          // eventOverlap: true // an option!
+      },
+
+      {
+        events: [],
+        color: "transparent",
+        borderColor: '#ff4081', // an option!
+        textColor: 'black',
+        className: 'timeConstraints'
+
+        // eventOverlap: false, 
+      }
+
+
+
+    ]
+
+    $scope.taskClick = function(event, element) {
+
+
+      if (event.task) {
+        if (event.task.status.name !== "Complete") {
+          event.task.status.name = "Complete"
+          $('.task .fc-event-title').each(function() {
+            if ($(this).text() === event.title) {
+              $(this).removeClass("glyphicon glyphicon-unchecked taskUnchecked").css('color', 'black');
+              $(this).addClass("glyphicon glyphicon-check taskCheck").css('color', 'green');
+            }
+          })
+        } else {
+          event.task.status.name = "Open"
+          $('.task .fc-event-title').each(function() {
+            if ($(this).text() === event.title) {
+              $(this).removeClass("glyphicon glyphicon-check taskCheck").css('color', 'green');
+              $(this).addClass("glyphicon glyphicon-unchecked taskUnchecked").css('color', 'black');
+
+            }
+          })
+        }
+
+
+
+        $http.put(ENV.apiUrl + "/task/" + event.task._id, event.task).then(function(res) {
+
+
+        })
+
+
+
+      }
+    }
+
+
+
+    /* config calendar view  */
+    $scope.uiConfig = {
+      calendar: {
+        defaultView: "basicDay",
+        // editable: true,
+        header: {
+          left: '',
+          center: 'title',
+          right: '',
+        },
+        eventClick: $scope.taskClick,
+        timeFormat: 'hh:mm T'
+      }
+    };
+
+
+
+  });

@@ -128,7 +128,7 @@ angular.module('starter.controllers', ['config', 'starter.services'])
 //   $scope.chat = Chats.get($stateParams.chatId);
 // })
 
-.controller('LoginCtrl', function($scope, $http, $location, $rootScope, ENV, $state, Idle, $cookies) {
+.controller('LoginCtrl', function($scope, $http, $location, $rootScope, ENV, $state, Idle, $cookies, Treatment) {
 
 
     sessionStorage.clear();
@@ -155,8 +155,8 @@ angular.module('starter.controllers', ['config', 'starter.services'])
     }
 })
 
-// .controller('AccountCtrl', function($scope) {
-//   $scope.settings = {
-//     enableFriends: true
-//   };
-// });
+.controller('AccountCtrl', function($scope) {
+  $scope.settings = {
+    enableFriends: true
+  };
+});
