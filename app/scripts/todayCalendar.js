@@ -1,6 +1,142 @@
 angular.module('Today.controller', ['config', 'starter.services'])
 
-.controller('TodayCtrl', function($scope, ENV, $location, $http, $rootScope, User, Adherence, Treatment, Patient, Cycle, $timeout) {
+.controller('TodayCtrl', function($scope, ENV, $location, $http, $rootScope, User, Adherence, Treatment, Patient, Cycle, uiCalendarConfig, $timeout, moment) {
+
+
+
+    if (sessionStorage['token']) {
+      $rootScope.currentUserSignedIn = true
+
+    }
+    if (!sessionStorage['token']) {
+      $location.path('/login')
+    };
+
+    /* config calendar view  */
+    $scope.uiConfig = {
+      calendar: {
+        defaultView: "basicDay",
+        viewRender: function(view, element) {
+           console.log( view.visStart, view.visEnd, view.start, view.end);
+        },
+        // editable: true,
+        header: {
+          left: '',
+          center: 'title',
+          right: '',
+        },
+        eventClick: $scope.taskClick,
+
+        eventRender: function(event, element) {
+
+
+       
+
+          if (element[0].className.indexOf('task') !== -1) {
+            if (event.task.status.name !== "Complete") {
+
+
+              // element.find('div').append('<span class="' + "dailyButtonView" + '">' + event.description + '</span>');
+
+              element.find('span').addClass("taskUnchecked glyphicon glyphicon-unchecked ").css('color', 'black');
+            } else if (event.task.status.name === "Complete") {
+              element.find('span').addClass("glyphicon glyphicon-check ").css('color', 'green');
+
+
+            }
+          } 
+
+          if (element[0].className.indexOf('timeConstraints') !== -1) {
+            return 
+
+          }
+
+          else {
+
+
+            var colorClass = event.colorClass || ""
+
+            if(event.mostRecentAnswer !== undefined){
+              if(event.mostRecentAnswer.value.response === "YES"){
+               
+                  element.find('div').append('<span class="glyphicon glyphicon-check yesResponse"></span>' )
+
+                    return 
+              }
+
+                    else  if(event.mostRecentAnswer.value.response === "NO"){
+                
+                  element.find('div').append('<span class="glyphicon glyphicon-remove noResponse"></span>' )
+
+                    return 
+              }
+            }
+
+
+            element.find('div').append("<br>"+'<span class="dailyInstruc">' +event.description+ '</span>' +"<br><div class = 'yesNoButtons'><button id='buttonYes' class='btn btn-success'>Yes</button>&nbsp;&nbsp;<button id='buttonNo' class='btn btn-danger'>No</button></div><br><br>")
+            element.find('#buttonYes').click(function() {
+
+             var question;
+              for(var i = 0; i< event.surveyQuestions.length; i++){
+                if(event.surveyQuestions[i]._type === "DosageChoiceQuestion"){
+                    question = event.surveyQuestions[i]
+                }
+              }
+
+              
+              
+              var surveyResponse = {
+                survey: event.surveyId,
+                question: question._id,
+                session: "anytime",
+                patient: $rootScope.userID,
+                submitted: new Date(),
+                submittedFor: question.scheduleDates[0].date,
+                value: {response: "YES", 
+                        reason: ""},
+                score: 10
+              }
+
+              Survey.postSurveyReply(surveyResponse).then(function(result){
+ 
+              })
+
+            })
+
+            element.find('#buttonNo').click(function() {
+              var question, 
+              reasonQuestion; 
+              for(var i = 0; i< event.surveyQuestions.length; i++){
+                  if(event.surveyQuestions[i]._type === "DosageChoiceQuestion"){
+                      question = event.surveyQuestions[i]
+                      question.surveyId = event.surveyId
+                      question.BundleName = event.title
+                  }
+              }
+              var surveyResponse = {
+                survey: event.surveyId,
+                question: question._id,
+                session: "anytime",
+                patient: $rootScope.userID,
+                submitted: new Date(),
+                submittedFor: question.scheduleDates[0].date,
+                value: {response: "NO", 
+                        reason: ""},
+                score: 0
+              }; 
+              question.surveyResponse = surveyResponse; 
+                $rootScope.reasonQuestionForNotAdhereing = question 
+                $mdDialog.show({
+                               controller: 'TodayCtrl',
+                               templateUrl: 'views/adherencereasonquestion.html',
+                               targetEvent: event,
+                              }); 
+            }); 
+          }
+        },
+        timeFormat: 'hh:mm tt'
+      }
+    };
 
 
     $scope.date = new Date(); 
@@ -62,24 +198,26 @@ angular.module('Today.controller', ['config', 'starter.services'])
 
 
     $scope.nextDay = function() {
-      $scope.loadingDayCalendar = true;
-      $scope.dailyCalLoading = "dailyCalLoading"
-      $scope.myCalendar.fullCalendar('next')
-      var nextDay = new Date($scope.myCalendar.fullCalendar('getView').visStart)
+      console.log(uiCalendarConfig.calendars.myCalendar)
+      console.log($scope.myCalendar)
+      // $scope.loadingDayCalendar = true;
+      // $scope.dailyCalLoading = "dailyCalLoading"
+      // $scope.uiConfig.calendar.fullCalendar('next')
+      // var nextDay = new Date($scope.myCalendar.fullCalendar('getView').visStart)
 
-      var endY = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1).getFullYear()
-      var endM = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1).getMonth()
-      var endD = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1).getDate()
+      // var endY = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1).getFullYear()
+      // var endM = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1).getMonth()
+      // var endD = new Date($scope.myCalendar.fullCalendar('getView').visEnd.getFullYear(), $scope.myCalendar.fullCalendar('getView').visEnd.getMonth(), $scope.myCalendar.fullCalendar('getView').visEnd.getDate() - 1).getDate()
       
-      makeAdherenceCall($rootScope.userID, nextDay)
-      Treatment.getTreatmentScheduleForOneDay($scope.userProfile.patientProfiles[0], endY, endM, endD).then(function(treat) {
-        for (var x = 0; x < $scope.eventSources.length; x++) {
-          $scope.eventSources[x].events = [];
-        }
-        $scope.createDrugEventsforWeek(treat.data.data, nextDay)
-        $scope.createEatAndSleepCalendarEvents($scope.patientSchedule, nextDay)
-        $scope.getChecklists(treat.data.data, nextDay)
-      })
+      // makeAdherenceCall($rootScope.userID, nextDay)
+      // Treatment.getTreatmentScheduleForOneDay($scope.userProfile.patientProfiles[0], endY, endM, endD).then(function(treat) {
+      //   for (var x = 0; x < $scope.eventSources.length; x++) {
+      //     $scope.eventSources[x].events = [];
+      //   }
+      //   $scope.createDrugEventsforWeek(treat.data.data, nextDay)
+      //   $scope.createEatAndSleepCalendarEvents($scope.patientSchedule, nextDay)
+      //   $scope.getChecklists(treat.data.data, nextDay)
+      // })
 
     }
 
@@ -510,6 +648,7 @@ getCurrentEvent($scope.times);
     ////////////////////////End Of Getting Drugs //////////////////////////////////////////////
 
     User.getCurrentUser().then(function(user) {
+      
 
       
       $scope.userProfile = user.data.data
@@ -601,20 +740,6 @@ getCurrentEvent($scope.times);
 
 
 
-    /* config calendar view  */
-    $scope.uiConfig = {
-      calendar: {
-        defaultView: "basicDay",
-        // editable: true,
-        header: {
-          left: '',
-          center: 'title',
-          right: '',
-        },
-        eventClick: $scope.taskClick,
-        timeFormat: 'hh:mm T'
-      }
-    };
 
 
 

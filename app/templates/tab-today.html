@@ -16,13 +16,13 @@
       		<br>
       	</div>
       </div>
-       <md-progress-circular md-mode="indeterminate" ng-hide="!loadingDayCalendar"></md-progress-circular>
+       <!-- <md-progress-circular md-mode="indeterminate" ng-hide="!loadingDayCalendar"></md-progress-circular> -->
 
       <span style="float:right" ng-hide="loadingDayCalendar"><md-button class="glyphicon glyphicon-menu-left" ng-click="prevDay()" aria-label="leftDay">Prev </md-button><md-button class="glyphicon glyphicon-menu-right" ng-click="nextDay()" aria-label="rightDay">Next </md-button></span>
 
-      <div class ="{{dailyCalLoading}}" ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar" id="swagger"></div>
+      <!-- <div ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar"></div> -->
     
-
+<div class="calendar" ng-model="eventSources" data-calendar="myCalendar" data-config="uiConfig.calendar" data-ui-calendar="uiConfig.calendar"></div>
 
 </div> 
   </ion-content>
