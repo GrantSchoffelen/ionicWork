@@ -1,15 +1,11 @@
 angular.module('Today.controller', ['config', 'starter.services'])
 
-.controller('TodayCtrl', function($scope, ENV, $location, $http, $rootScope, User, Adherence, Treatment, Patient, Cycle, uiCalendarConfig, $timeout, moment, Survey) {
+.controller('TodayCtrl', function($scope, ENV, $location, $http, $rootScope, User, Adherence, Treatment, Patient, Cycle, uiCalendarConfig, $timeout, moment, Survey, $state) {
 
 
-    if (sessionStorage['token']) {
-      $rootScope.currentUserSignedIn = true
-
-    }
-    if (!sessionStorage['token']) {
-      $location.path('/login')
-    };
+  if(typeof sessionStorage['token'] === 'undefined'){
+    $state.go('login')
+  }
 
 
     $scope.date = new Date(); 

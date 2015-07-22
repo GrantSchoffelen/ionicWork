@@ -1,11 +1,13 @@
 <ion-view view-title="Calendar">
   <ion-content>
   <md-progress-circular md-mode="indeterminate" ng-if="loadingCalendar === true"></md-progress-circular>
+
    <div ng-repeat=" drug in DrugsForColorKey" style="text-align: right; " ng-hide="loadingCalendar">{{drug.name}}
 	<div class="{{drug.colorClass}}" style="display: inline; color: transparent;">______________</div>
 </div> 
 <br> 
 <br>
+  <md-progress-circular md-mode="indeterminate" ng-show="loadingFirstTime === true"></md-progress-circular>
 <span style="float:right" ng-hide="loadingCalendar"><md-button class="glyphicon glyphicon-menu-left" ng-click="prevMonth()" aria-label="left">Prev</md-button><md-button class="glyphicon glyphicon-menu-right" ng-click="nextMonth()" aria-label="right">Next</md-button></span>
 <div class = 'monthCal ' ng-hide="loadingCalendar" ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar">
 </div>

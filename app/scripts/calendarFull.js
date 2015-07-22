@@ -1,23 +1,21 @@
 angular.module('Calendar.controller', ['config', 'starter.services'])
 
-  .controller('CalendarCtrl', function($scope, User, Treatment, Patient, $http, $mdDialog, $rootScope, $timeout, Cycle, moment, uiCalendarConfig) {
+  .controller('CalendarCtrl', function($scope, $state, User, Treatment, Patient, $http, $mdDialog, $rootScope, $timeout, Cycle, moment, uiCalendarConfig) {
  
- 
-    if (sessionStorage['token']) {
-      $rootScope.currentUserSignedIn = true
+   if(typeof sessionStorage['token'] === 'undefined'){
+    $state.go('login')
+  }
 
-    }
-    if (!sessionStorage['token']) {
-      $location.path('/login')
-    };
 var today = moment()
 
 $scope.loadingCalendar = false; 
 $scope.monthCalLoading = "monthCalLoading"
+$scope.loadingFirstTime = true;
 
 var loadingFunction = function(){
     $scope.monthCalLoading = ""; 
     $scope.loadingCalendar = false;  
+    $scope.loadingFirstTime = false;
 }
 
 
@@ -125,6 +123,7 @@ $scope.prevMonth = function(){
         }
 
         $timeout(loadingFunction, 1)
+
           
       }
 
