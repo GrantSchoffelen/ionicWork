@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'Today.controller', 'starter.services', 'ngMaterial', 'ngIdle', 'ngCookies', 'ui.calendar', 'angularMoment'])
+angular.module('starter', ['ionic', 'starter.controllers', 'Today.controller', 'Calendar.controller', 'starter.services', 'ngMaterial', 'ngIdle', 'ngCookies', 'ui.calendar', 'angularMoment'])
 
 .run(function($ionicPlatform, $http, Idle, $rootScope, $state, $cookies) {
     sessionStorage.clear()
@@ -75,6 +75,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'Today.controller', '
       'tab-today': {
         templateUrl: 'templates/tab-today.html',
         controller: 'TodayCtrl'
+      }
+    }
+  })
+    .state('tab.calendar', {
+    url: '/calendar',
+    views: {
+      'tab-calendar': {
+        templateUrl: 'templates/tab-calendar.html',
+        controller: 'CalendarCtrl'
       }
     }
   })

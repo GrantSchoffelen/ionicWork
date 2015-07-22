@@ -1,29 +1,11 @@
 <ion-view view-title="Today">
   <ion-content>
-<a href = "#/tab/login">Log out</a>
-
-<div class="container dailyCalView">
-
-
-      <div ng-if="currentDrugEvents.length > 0" style="background: #D5E6F9;">
-      	<div style="text-align: center; background: #B6D6F9">Today {{date | date:'MMM d, y'}} <br>{{ date | date:'h:mm a'}}</div>
-      	<h5 style="padding-left:40px;">Next Dose</h5>
-      	<div ng-repeat = "currentDrug in currentDrugEvents">
-      		<span style="padding-left:40px; font-weight: bold; font-size: 18px;">{{currentDrug.time | date:'h:mm a'}}</span> <span style="padding-left:40px; font-weight: bold; font-size: 18px;">{{currentDrug.name}}</span>
-      		
-      		<br>
-      		<br>
-      		<br>
-      	</div>
-      </div>
-       <!-- <md-progress-circular md-mode="indeterminate" ng-hide="!loadingDayCalendar"></md-progress-circular> -->
-
-      <span style="float:right" ng-hide="loadingDayCalendar"><md-button class="glyphicon glyphicon-menu-left" ng-click="prevDay()" aria-label="leftDay">Prev </md-button><md-button class="glyphicon glyphicon-menu-right" ng-click="nextDay()" aria-label="rightDay">Next </md-button></span>
-
-      <!-- <div ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar"></div> -->
-    
-<div class="calendar" ng-model="eventSources" data-calendar="myCalendar" data-config="uiConfig.calendar" data-ui-calendar="uiConfig.calendar"></div>
-
-</div> 
+    <div class="container dailyCalView padding">
+      <center>
+      <div class="todayDate">{{date | date:'fullDate'}}</div>
+      <div class="todayTime">{{date | date:'shortTime'}}</div>
+      </center>
+      <div class ="{{dailyCalLoading}}" ng-model="eventSources" data-calendar="myCalendar" data-config="uiConfig.calendar" data-ui-calendar="uiConfig.calendar"></div>
+    </div>
   </ion-content>
 </ion-view>

@@ -1,6 +1,6 @@
-angular.module('Today.controller', ['config', 'starter.services'])
+angular.module('Calendar.controller', ['config', 'starter.services'])
 
-.controller('TodayCtrl', function($scope, ENV, $location, $http, $rootScope, User, Adherence, Treatment, Patient, Cycle, uiCalendarConfig, $timeout, moment, Survey) {
+.controller('CalendarCtrl', function($scope, ENV, $location, $http, $rootScope, User, Adherence, Treatment, Patient, Cycle, uiCalendarConfig, $timeout, moment, Survey) {
 
 
     if (sessionStorage['token']) {

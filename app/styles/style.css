@@ -102,7 +102,7 @@
 .drugs{
   /*// background-color: rgb(220, 230, 240); */
   border: none; 
-  height: 90px; 
+  height: 150px; 
   margin-top: 10px; 
   margin-bottom: 10px; 
 
@@ -408,7 +408,19 @@ height: 77px;
 }
 
 
+.todayTime{
+  /*font-style: italic;*/
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 20px;
+  /*font-weight:bold;*/
+}
 
+.todayDate{
+  font-size: 20px;
+  font-weight:bold;
+
+}
 .task .fc-event-inner{
   
   background-color: none; 
@@ -456,8 +468,25 @@ height: 77px;
 
 .yesNoButtons{
   text-align: center;
-  padding-top: 5px;
+  padding-top: 7px;
 
 }
 
+#buttonYes{
+  height:50px;
+  width: 80px;
+  background-color: green;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+#buttonNo{
+  height:50px;
+  width: 80px;
+  background-color: red;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+}
 

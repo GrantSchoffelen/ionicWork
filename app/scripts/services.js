@@ -57,6 +57,44 @@ angular.module('starter.services', [])
       }
 
     };
+  }) .factory('Survey', function ($http, ENV, $q) {
+    
+    return {
+      getSurvey: function (bundleId) {
+
+        
+        return $http.get(ENV.apiUrl + "/survey?targetId=adherence__" + bundleId)
+      }, 
+
+      postSurveyReply: function(reply){
+
+        return $http.post(ENV.apiUrl + "/surveyreply", reply)
+
+      }, 
+
+      
+
+      getSymptomSurvey: function(patientId){
+        var deferred = $q.defer(); 
+       return  $http.get(ENV.apiUrl +"/survey?targetId=symptom__"+ patientId).then(function(surveys){
+        deferred.resolve(surveys)
+        return deferred.promise
+       })
+      }, 
+
+      postSymptomSurvey: function(reply){
+        var deferred = $q.defer();
+        return $http.post(ENV.apiUrl+ "/surveyreply", reply).then(function(reply){
+          deferred.resolve(reply); 
+          console.log(reply, 'reply')
+          return deferred.promise
+        })
+      }
+
+
+
+    }
+
   })
     .factory('Cycle', function($http, ENV, $q) {
 
