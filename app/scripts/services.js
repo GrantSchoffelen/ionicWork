@@ -142,7 +142,7 @@ angular.module('starter.services', [])
 
     };
   })
-   .factory('Treatment', function ($http, ENV) {
+   .factory('Treatment', function ($http, ENV, moment) {
   
 
     return {
@@ -186,37 +186,18 @@ angular.module('starter.services', [])
         return $http.get(ENV.apiUrl + "/bundle?patient="+ patientId+"&drug-schedule-dates=1&drug-schedule-from="+fromDateYear+"-"+fromMonth+"-"+fromDate+"&drug-schedule-until="+untilDateYear+"-"+untilDateMonth+"-"+untilDate)
       }, 
 
-    getTreatmentForMonth: function(patientId, startYear, startM, startDate, endY, endM, endDate){ 
-      var startMonth = new Date (startYear, startM, startDate).getMonth()+1
-      var endMonth = new Date(endY, (endM+1), endDate).getMonth()
-      var endYear = new Date (endY, (endM+1), endDate).getFullYear()
+    getTreatmentForMonth: function(patientId, today){ 
+      var startDate = today.startOf('month').subtract(10, 'days').format("YYYY-MM-DD");
+      var endDate = today.endOf('month').add({days:10,months:1}).format("YYYY-MM-DD"); 
+      console.log
+
+ 
       
-      
-
-      if (startMonth.length === 1){
-        startMonth = "0"+ startM 
-      }
-      if (endMonth.length===1){
-        endMonth = "0"+ endM
-      }
-      if(startDate.length===1){
-        startDate = "0"+startDate
-      }
-      if(endDate.length===1){
-        endDate = "0"+endDate
-      }
-
-      if(endMonth === "00" || endMonth === 0 || endMonth === "0"){
-        endMonth = "01"
-      }
-
-       if(startMonth === "00" || startMonth === 0 || startMonth === "0"){
-        startMonth = "01"
-      }
+    
 
     
 
-        return $http.get(ENV.apiUrl + "/bundle?patient="+ patientId+"&drug-schedule-dates=1&drug-schedule-from="+startYear+"-"+startMonth+"-"+startDate+"&drug-schedule-until="+endYear+"-"+endMonth+"-"+endDate)
+        return $http.get(ENV.apiUrl + "/bundle?patient="+ patientId+"&drug-schedule-dates=1&drug-schedule-from="+startDate+"&drug-schedule-until="+endDate)
 
     }
     };

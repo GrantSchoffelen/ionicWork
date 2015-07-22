@@ -145,7 +145,7 @@ angular.module('starter.controllers', ['config', 'starter.services'])
                 sessionStorage['token'] = data.data.token;  
                 $cookies.mobileEmail = $scope.user.email                
                 $http.defaults.headers.common.Authorization = 'Bearer ' + sessionStorage['token'] 
-                $state.go('tab.dash')
+                $state.go('tab.today')
                 $scope.loading = false; 
             })
             .error(function(data, status, header, config) {
