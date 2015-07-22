@@ -10,12 +10,12 @@ var today = moment()
 
 $scope.loadingCalendar = false; 
 $scope.monthCalLoading = "monthCalLoading"
-$scope.loadingFirstTime = true;
+
 
 var loadingFunction = function(){
     $scope.monthCalLoading = ""; 
     $scope.loadingCalendar = false;  
-    $scope.loadingFirstTime = false;
+
 }
 
 
