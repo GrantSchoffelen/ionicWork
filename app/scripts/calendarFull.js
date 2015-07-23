@@ -6,9 +6,9 @@ angular.module('Calendar.controller', ['config', 'starter.services'])
     $state.go('login')
   }
 
-var today = moment()
 
-$scope.loadingCalendar = false; 
+
+$scope.loadingCalendar = true; 
 $scope.monthCalLoading = "monthCalLoading"
 
 
@@ -21,20 +21,26 @@ var loadingFunction = function(){
 
 $scope.nextMonth = function(){
   $scope.view.next()
-  today = today.add(1, 'months')
+  var callDateStart = moment($scope.view.getView().visStart)
+  var callDateEnd = moment($scope.view.getView().visEnd)
+
     $scope.loadingCalendar = true; 
-    Treatment.getTreatmentForMonth($scope.userProfile.patientProfiles[0], today).then(function(treat){   
+    $scope.monthCalLoading = "monthCalLoading"
+    Treatment.getTreatmentForMonth($scope.userProfile.patientProfiles[0], callDateStart, callDateEnd).then(function(treat){   
       $scope.createDrugEventsforWeek(treat.data.data) 
     })
 
 }
 
 $scope.prevMonth = function(){
-  
+
   $scope.view.prev()
-  today = today.subtract(1, 'months')
+  var callDateStart = moment($scope.view.getView().visStart)
+  var callDateEnd = moment($scope.view.getView().visEnd)
+
     $scope.loadingCalendar = true; 
-    Treatment.getTreatmentForMonth($scope.userProfile.patientProfiles[0], today).then(function(treat){   
+    $scope.monthCalLoading = "monthCalLoading"
+    Treatment.getTreatmentForMonth($scope.userProfile.patientProfiles[0], callDateStart, callDateEnd).then(function(treat){   
       $scope.createDrugEventsforWeek(treat.data.data) 
     })
 
@@ -132,7 +138,11 @@ $scope.prevMonth = function(){
     User.getCurrentUser().then(function(user) {
       $scope.userProfile = user.data.data
       $rootScope.userID = $scope.userProfile.patientProfiles[0]
-      Treatment.getTreatmentForMonth($scope.userProfile.patientProfiles[0], today).then(function(treat){
+      var callDateStart = moment().subtract(1, 'months')
+      var callDateEnd = moment().add(1, 'months')
+   
+
+      Treatment.getTreatmentForMonth($scope.userProfile.patientProfiles[0], callDateStart, callDateEnd).then(function(treat){
             $scope.createDrugEventsforWeek(treat.data.data)
         })
     })

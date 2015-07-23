@@ -475,7 +475,7 @@ height: 77px;
 #buttonYes{
   height:50px;
   width: 80px;
-  background-color: green;
+  /*background-color: green;*/
   color: white;
   font-weight: bold;
   font-size: 20px;
@@ -484,7 +484,7 @@ height: 77px;
 #buttonNo{
   height:50px;
   width: 80px;
-  background-color: red;
+  /*background-color: red;*/
   color: white;
   font-weight: bold;
   font-size: 20px;

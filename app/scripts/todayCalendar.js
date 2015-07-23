@@ -536,6 +536,7 @@ getCurrentEvent($scope.times);
         eventRender: function(event, element) {
 
 
+
        
 
           if (element[0].className.indexOf('task') !== -1) {
@@ -579,10 +580,11 @@ getCurrentEvent($scope.times);
             }
 
 
-            element.find('div').append("<br>"+'<span class="dailyInstruc">' +event.description+ '</span>' +"<br><div class = 'yesNoButtons'><button id='buttonYes' class='btn btn-success'>Yes</button>&nbsp;&nbsp;&nbsp;&nbsp;<button id='buttonNo' class='btn btn-danger'>No</button></div><br><br>")
+            element.find('div').append("<br>"+'<span class="dailyInstruc">' +event.description+ '</span>' +"<br><div class = 'yesNoButtons'><button id='buttonYes' class='button button-balanced'>Yes</button>&nbsp;&nbsp;&nbsp;&nbsp;<button id='buttonNo' class='button button-assertive'>No</button></div><br><br>")
             element.find('#buttonYes').click(function() {
-
-             var question;
+              element.find(".fc-event-title").append('<span class="ion-checkmark-circled yesResponse"></span>' )
+              element.find('.yesNoButtons').remove()
+              var question;
               for(var i = 0; i< event.surveyQuestions.length; i++){
                 if(event.surveyQuestions[i]._type === "DosageChoiceQuestion"){
                     question = event.surveyQuestions[i]
@@ -610,6 +612,9 @@ getCurrentEvent($scope.times);
             })
 
             element.find('#buttonNo').click(function() {
+              element.find(".fc-event-title").append('<span class="ion-close-circled noResponse"></span>' )
+              element.find('.yesNoButtons').remove()
+
               var question, 
               reasonQuestion; 
               for(var i = 0; i< event.surveyQuestions.length; i++){

@@ -86,7 +86,6 @@ angular.module('starter.services', [])
         var deferred = $q.defer();
         return $http.post(ENV.apiUrl+ "/surveyreply", reply).then(function(reply){
           deferred.resolve(reply); 
-          console.log(reply, 'reply')
           return deferred.promise
         })
       }
@@ -142,7 +141,7 @@ angular.module('starter.services', [])
 
     };
   })
-   .factory('Treatment', function ($http, ENV, moment) {
+   .factory('Treatment', function ($http, ENV, moment, $q) {
   
 
     return {
@@ -186,18 +185,16 @@ angular.module('starter.services', [])
         return $http.get(ENV.apiUrl + "/bundle?patient="+ patientId+"&drug-schedule-dates=1&drug-schedule-from="+fromDateYear+"-"+fromMonth+"-"+fromDate+"&drug-schedule-until="+untilDateYear+"-"+untilDateMonth+"-"+untilDate)
       }, 
 
-    getTreatmentForMonth: function(patientId, today){ 
-      var startDate = today.startOf('month').subtract(10, 'days').format("YYYY-MM-DD");
-      var endDate = today.endOf('month').add({days:10,months:1}).format("YYYY-MM-DD"); 
-      console.log
-
- 
-      
+    getTreatmentForMonth: function(patientId, callDateStart, callDateEnd){ 
+      var deferred = $q.defer(); 
+      var startDate = callDateStart.format("YYYY-MM-DD");
+      var endDate = callDateEnd.format("YYYY-MM-DD"); 
     
 
-    
-
-        return $http.get(ENV.apiUrl + "/bundle?patient="+ patientId+"&drug-schedule-dates=1&drug-schedule-from="+startDate+"&drug-schedule-until="+endDate)
+        return $http.get(ENV.apiUrl + "/bundle?patient="+ patientId+"&drug-schedule-dates=1&drug-schedule-from="+startDate+"&drug-schedule-until="+endDate).then(function(reply){
+          deferred.resolve(reply); 
+          return deferred.promise
+        })
 
     }
     };
@@ -231,7 +228,6 @@ angular.module('starter.services', [])
         var deferred = $q.defer();
         return $http.post(ENV.apiUrl+ "/surveyreply", reply).then(function(reply){
           deferred.resolve(reply); 
-          console.log(reply, 'reply')
           return deferred.promise
         })
       }
