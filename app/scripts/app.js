@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'Today.controller', 'Calendar.controller', 'starter.services', 'ngMaterial', 'ngIdle', 'ngCookies', 'ui.calendar', 'angularMoment'])
 
-.run(function($ionicPlatform, $http, Idle, $rootScope, $state, $cookies) {
+.run(function($ionicPlatform, $http, Idle, $rootScope, $state, $cookies, $ionicPopup) {
     sessionStorage.clear()
     Idle.watch();
     $rootScope.$on('IdleTimeout', function(){
@@ -18,6 +18,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'Today.controller', '
         $rootScope.logOutMessage = "You've been logged out due to 15 minutes of inactivity"
     })
   $ionicPlatform.ready(function() {
+    if(window.Connection) {
+                if(navigator.connection.type == Connection.NONE) {
+                    $ionicPopup.confirm({
+                        title: "Internet Disconnected",
+                        content: "The internet is disconnected on your device."
+                    })
+                    .then(function(result) {
+                        if(!result) {
+                            ionic.Platform.exitApp();
+                        }
+                    });
+                }
+            }
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
     if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
