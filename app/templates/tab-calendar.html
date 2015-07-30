@@ -1,6 +1,9 @@
 <ion-view view-title="Calendar">
   <ion-content>
   <md-progress-circular md-mode="indeterminate" ng-if="loadingCalendar"></md-progress-circular>
+  <div style="background: white; height: 1000px; width: 1000px; position: absolute; z-index: 99;" ng-if="loadingCalendar">
+
+  </div>
 
 
 
@@ -11,7 +14,7 @@
 <br>
 
 <span style="float:right" ng-hide="loadingCalendar"><md-button class="glyphicon glyphicon-menu-left" ng-click="prevMonth()" aria-label="left">Prev</md-button><md-button class="glyphicon glyphicon-menu-right" ng-click="nextMonth()" aria-label="right">Next</md-button></span>
-<div class = 'monthCal ng-class: monthCalLoading ' ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar">
+<div class = 'monthCal' ui-calendar="uiConfig.calendar" ng-model="eventSources" calendar="myCalendar">
 </div>
 
 
