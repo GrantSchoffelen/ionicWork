@@ -6,6 +6,8 @@ angular.module('starter.controllers', ['config', 'starter.services'])
     $state.go('login')
   }
 
+  $scope.loading = true; 
+
 
        $scope.postSymptomSurveyReply = function(survey){
         var promise, 
@@ -102,6 +104,7 @@ angular.module('starter.controllers', ['config', 'starter.services'])
 
                 })
         }); 
+        $scope.loading = false;
       });
             })
 

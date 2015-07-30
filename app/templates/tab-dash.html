@@ -6,6 +6,8 @@
 <h4 style= "color: #ABABAB">Let us know how you are currently feeling.</h4>
 </div>
 
+<md-progress-circular md-mode="indeterminate" ng-if="loading === true"></md-progress-circular>
+
 <div 
   ng-class-odd="'odd'" ng-class-even="'even'" ng-repeat='question in symptomSurvey.questions' style= "vertical-align: middle; padding-bottom:15px; padding-top:15px;" ng-if="question.questionText !== 'Are you experiencing any other symptoms?'">
   

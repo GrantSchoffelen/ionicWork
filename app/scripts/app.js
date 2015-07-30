@@ -7,11 +7,11 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'Today.controller', 'Calendar.controller', 'starter.services', 'ngMaterial', 'ngIdle', 'ngCookies', 'ui.calendar', 'angularMoment'])
 
-.run(function($ionicPlatform, $http, Idle, $rootScope, $state, $cookies, $ionicPopup) {
+.run(function($ionicPlatform, $http, Idle, $rootScope, $state, $cookies, $ionicPopup, ENV) {
     sessionStorage.clear()
     Idle.watch();
     $rootScope.$on('IdleTimeout', function(){
-        console.log('logged out')
+        $http.get(ENV.apiUrl+"/auth/logout");
         sessionStorage.removeItem('token')
         sessionStorage.clear();
         $state.go('login')

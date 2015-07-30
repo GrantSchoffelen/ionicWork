@@ -7,6 +7,8 @@ angular.module('Today.controller', ['config', 'starter.services'])
     $state.go('login')
   }
 
+  $scope.loading =true;
+
 
     $scope.date = new Date(); 
     
@@ -62,6 +64,7 @@ angular.module('Today.controller', ['config', 'starter.services'])
     var loadingFunction = function() {
       $scope.dailyCalLoading = ""
       $scope.loadingDayCalendar = false;
+      $scope.loading =false;
     }
 
 

@@ -20,6 +20,7 @@ var loadingFunction = function(){
 
 
 $scope.nextMonth = function(){
+  $scope.monthCalLoading = "monthCalLoading"
   $scope.view.next()
   var callDateStart = moment($scope.view.getView().visStart)
   var callDateEnd = moment($scope.view.getView().visEnd)
@@ -33,6 +34,7 @@ $scope.nextMonth = function(){
 }
 
 $scope.prevMonth = function(){
+  $scope.monthCalLoading = "monthCalLoading"
 
   $scope.view.prev()
   var callDateStart = moment($scope.view.getView().visStart)
