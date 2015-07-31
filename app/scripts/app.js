@@ -5,9 +5,9 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'Today.controller', 'Calendar.controller', 'starter.services', 'ngMaterial', 'ngIdle', 'ngCookies', 'ui.calendar', 'angularMoment'])
+angular.module('starter', ['ionic', 'starter.controllers', 'Today.controller', 'Calendar.controller', 'starter.services', 'ngMaterial', 'ngIdle', 'ui.calendar', 'angularMoment'])
 
-.run(function($ionicPlatform, $http, Idle, $rootScope, $state, $cookies, $ionicPopup, ENV) {
+.run(function($ionicPlatform, $http, Idle, $rootScope, $state, $ionicPopup, ENV) {
     sessionStorage.clear()
     Idle.watch();
     $rootScope.$on('IdleTimeout', function(){
@@ -99,36 +99,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'Today.controller', '
         controller: 'CalendarCtrl'
       }
     }
-  })
-
-  .state('tab.chats', {
-      url: '/chats',
-      views: {
-        'tab-chats': {
-          templateUrl: 'templates/tab-chats.html',
-          controller: 'ChatsCtrl'
-        }
-      }
-    })
-    .state('tab.chat-detail', {
-      url: '/chats/:chatId',
-      views: {
-        'tab-chats': {
-          templateUrl: 'templates/chat-detail.html',
-          controller: 'ChatDetailCtrl'
-        }
-      }
-    })
-
-  .state('tab.account', {
-    url: '/account',
-    views: {
-      'tab-account': {
-        templateUrl: 'templates/tab-account.html',
-        controller: 'AccountCtrl'
-      }
-    }
-  });
+  }); 
 
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/login');

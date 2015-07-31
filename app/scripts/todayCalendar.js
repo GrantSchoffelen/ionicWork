@@ -7,15 +7,11 @@ angular.module('Today.controller', ['config', 'starter.services'])
     $state.go('login')
   }
 
-  $scope.loading =true;
+
 
 
     $scope.date = new Date(); 
     
-    $scope.cancel = function() {
-      $mdDialog.cancel();
-    };
-
     $scope.noDosageFreeChoiceQuestionResponse =""; 
 
     $scope.postAdherenceNoReason = function(reason){
@@ -27,44 +23,12 @@ angular.module('Today.controller', ['config', 'starter.services'])
 
     $scope.loadingDayCalendar = true;
     $scope.dailyCalLoading = "dailyCalLoading"
-
-
-
-    function getCurrentEvent(array){
-      var temp; 
-      $scope.currentDrugEvents = []
-      var sorted  = array.sort(function(a,b){
-        return new Date(a.time) - new Date(b.time)
-      })
-      
-
-      for(var i=0; i< sorted.length; i++){
-        if(date < array[i].time){
-          
-          temp = array[i]
-          break
-        }
-      }
-
-        for(var j=0; j< array.length; j++){
-          if(!temp){
-            return
-          }
-
-       
-          if(temp.time.getTime() === array[j].time.getTime()){
-            
-            $scope.currentDrugEvents.push(array[j])
-          }
-        }
-    }
-
     
 
     var loadingFunction = function() {
       $scope.dailyCalLoading = ""
       $scope.loadingDayCalendar = false;
-      $scope.loading =false;
+
     }
 
 
@@ -130,26 +94,7 @@ angular.module('Today.controller', ['config', 'starter.services'])
           if ($scope.eventSources[1].events.indexOf($scope.sleepEventsFortoday) === -1) {
             $scope.eventSources[1].events.push($scope.sleepEventsFortoday)
           }
-
-
         }
-        // for (var j = 1; j < 7; j++) {
-
-
-        //   $scope.eatAndSleepEventsForweek = {
-        //     title: eventTitle,
-        //     start: new Date(y, m, d + j, time[0], time[1]),
-        //     end: new Date(y, m, d + j, Number(time[0]) + 1, time[1]),
-        //     allDay: false,
-        //     description: ""
-        //       // overlap: false 
-        //   }
-
-        //   $scope.eventSources[0].events.push($scope.eatAndSleepEventsForweek)
-        // }
-
-        // $scope.eventSources[0].events.push($scope.eatAndSleepEventsFortoday)
-
       };
     }
 
@@ -326,17 +271,7 @@ angular.module('Today.controller', ['config', 'starter.services'])
           }
         }
       }
-      // $scope.currentEvents = [];
-      // for (var x = 0; x < $scope.eventSources.length; x++) {
-      //   for (var z = 0; z < $scope.eventSources[x].events.length; z++) {
-      //     if ((new Date($scope.eventSources[x].events[z].start).getTime() < new Date().getTime()) && (new Date().getTime() < new Date($scope.eventSources[x].events[z].end).getTime())) {
-      //       $scope.currentEvents.push($scope.eventSources[x].events[z])
-      //     }
-      //   }
-      // }
       $timeout(loadingFunction, 1)
-
-getCurrentEvent($scope.times); 
 
     }
 
@@ -410,42 +345,32 @@ getCurrentEvent($scope.times);
           }
         })
       }
-
-    }
-
-
+    }; 
     ///////////////////////////// Get Adherence function/////////////////////////////////
 
     var makeAdherenceCall = function(patientId, dateForEvent) {
       var fromSurveyDate = moment(dateForEvent).format("YYYY-M-DD"),
-        untilSurveyDate = moment(dateForEvent).add(1, "days").format("YYYY-M-DD");
+          untilSurveyDate = moment(dateForEvent).add(1, "days").format("YYYY-M-DD");
       Adherence.getAdherenceOneDay($rootScope.userID, fromSurveyDate, untilSurveyDate).then(function(result) {
-        var surveys = result; 
-        $scope.adherenceSurveys = surveys.data.data
+        $scope.adherenceSurveys = result.data.data
       })
     }
-
-
     ////////////////////////End Of Getting Drugs //////////////////////////////////////////////
 
     User.getCurrentUser().then(function(user) {
-      
-
-      
-      $scope.userProfile = user.data.data
-      $rootScope.userID = user.data.data.patientProfiles[0]
-      makeAdherenceCall($rootScope.userID, date)
+      $scope.userProfile = user.data.data; 
+      $rootScope.userID = user.data.data.patientProfiles[0]; 
+      makeAdherenceCall($rootScope.userID, date); 
       Treatment.getTreatmentScheduleForOneDay(user.data.data.patientProfiles[0], y, m, d).then(function(treatments) {
         $scope.treatments = treatments.data.data
         $scope.getChecklists($scope.treatments, date)
-
         Patient.getCurrentPatientInformation(user.data.data.patientProfiles[0]).then(function(patient) {
           $scope.patientSchedule = patient.data.data.schedule
           $scope.createEatAndSleepCalendarEvents($scope.patientSchedule, date)
           $scope.createDrugEventsforWeek($scope.treatments, date)
-        })
-      })
-    })
+        }); 
+      }); 
+    }); 
 
 
     $scope.eventSources = [{
@@ -467,7 +392,6 @@ getCurrentEvent($scope.times);
         color: "transparent",
         textColor: 'black',
         className: 'drugs'
-          // eventOverlap: true // an option!
       },
 
       {
@@ -476,17 +400,10 @@ getCurrentEvent($scope.times);
         borderColor: '#ff4081', // an option!
         textColor: 'black',
         className: 'timeConstraints'
-
-        // eventOverlap: false, 
       }
-
-
-
     ]
 
     $scope.taskClick = function(event, element) {
-
-
       if (event.task) {
         if (event.task.status.name !== "Complete") {
           event.task.status.name = "Complete"
@@ -502,20 +419,10 @@ getCurrentEvent($scope.times);
             if ($(this).text() === event.title) {
               $(this).removeClass("glyphicon glyphicon-check taskCheck").css('color', 'green');
               $(this).addClass("glyphicon glyphicon-unchecked taskUnchecked").css('color', 'black');
-
             }
           })
         }
-
-
-
-        $http.put(ENV.apiUrl + "/task/" + event.task._id, event.task).then(function(res) {
-
-
-        })
-
-
-
+        $http.put(ENV.apiUrl + "/task/" + event.task._id, event.task).then(function(res){}); 
       }
     }
 
@@ -642,23 +549,11 @@ getCurrentEvent($scope.times);
                Survey.postSurveyReply(surveyResponse).then(function(result){
  
               })
-                // $rootScope.reasonQuestionForNotAdhereing = question 
-                // $mdDialog.show({
-                //                controller: 'TodayCtrl',
-                //                templateUrl: 'views/adherencereasonquestion.html',
-                //                targetEvent: event,
-                //               }); 
             }); 
           }
         },
         timeFormat: 'hh:mm tt'
       }
     };
-
-
-
-
-
-
 
   });
